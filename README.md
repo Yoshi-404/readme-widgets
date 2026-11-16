@@ -8,79 +8,73 @@
   </a>
 
   <p>
-    <b>Widget de telemetria em tempo real para README do GitHub</b><br>
-    Inspirado no visual cyberpunk de terminais escuros com barras de progresso neon pulsantes.
-  </p>
-
-  <p>
-    <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYoshi-404%2Freadme-widgets"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
+    <b>Widget de telemetria em tempo real para o README do GitHub</b><br>
+    Alimentado 100% por <b>GitHub Actions</b> (sem necessidade de servidores externos como Vercel ou Heroku).
   </p>
 
 </div>
 
 ---
 
-## 🎯 Como Usar no seu README do GitHub
+## 🎯 Como Funciona com GitHub Actions (100% Grátis)
 
-Você pode usar este widget no seu perfil (`username/username`) ou no README de qualquer repositório de **duas formas simples**:
+Tudo roda dentro da infraestrutura do próprio GitHub:
+- O workflow agendado ([.github/workflows/update-telemetry.yml](.github/workflows/update-telemetry.yml)) roda a cada 6 horas (ou sempre que você fizer push).
+- Ele recalcula repositórios, commits e distribuição de linguagens.
+- Gera o arquivo vetorial `telemetry.svg` (apenas 6 KB) e atualiza o repositório sozinho.
+- Suas cotas na Vercel continuam **100% livres e reservadas para o KutsuLab**!
 
-### Método 1: GitHub Actions (Sem Servidor • 100% Grátis)
+---
 
-Este método não precisa de servidor nem de deploy. O GitHub roda o script a cada 6 horas e mantém a imagem atualizada no seu repositório:
+## 📌 Como Usar no seu Perfil (`Yoshi-404`) ou em Qualquer Repositório
 
-1. Copie o arquivo [.github/workflows/update-telemetry.yml](.github/workflows/update-telemetry.yml) para o seu repositório.
-2. Adicione a imagem no seu `README.md`:
+### Método 1: Referência Direta (Recomendado)
+Se você quer exibir este widget no seu perfil ou em outro projeto, basta adicionar esta tag no seu `README.md`:
+
 ```markdown
 <div align="center">
-  <img src="./telemetry.svg" alt="GitHub Telemetry" width="600" />
+  <img src="https://raw.githubusercontent.com/Yoshi-404/readme-widgets/main/telemetry.svg" alt="Live GitHub Telemetry" width="600" />
 </div>
 ```
-3. Pronto! O GitHub atualizará as métricas e o arquivo `telemetry.svg` automaticamente.
 
 ---
 
-### Método 2: Vercel Serverless (Qualquer Usuário via URL)
-
-Se você fizer o deploy na Vercel (1 clique no botão acima), qualquer pessoa poderá colocar a tag direta no Markdown:
-
+### Método 2: Rodar o Workflow no Próprio Repositório de Destino
+Se você ou outra pessoa quiser que o script gere o arquivo localmente dentro do próprio repositório:
+1. Copie o arquivo [.github/workflows/update-telemetry.yml](.github/workflows/update-telemetry.yml).
+2. No `README.md`, referencie o arquivo local:
 ```markdown
-![Minha Telemetria](https://seu-app.vercel.app/api?username=SEU_USUARIO)
+<div align="center">
+  <img src="./telemetry.svg" alt="Live GitHub Telemetry" width="600" />
+</div>
 ```
 
-**Parâmetros suportados na URL:**
-- `username`: Seu nome de usuário no GitHub (Ex: `?username=Yoshi-404`).
-- `token`: (Opcional) Token do GitHub para ler repositórios privados e evitar limites de taxa.
-
 ---
 
-### Método 3: Gerar Manualmente via Terminal
+## ⚙️ Disparo Manual e Atualização na Hora
 
-Gera o arquivo `telemetry.svg` instantaneamente no seu Mac:
-
+Além do cron automático a cada 6 horas:
+- Você pode ir na aba **Actions** do repositório no GitHub, selecionar **Update README Telemetry** e clicar em **Run workflow**.
+- Ou no seu Mac, gerar e commitar instantaneamente:
 ```bash
 ./yoshi --svg
-# ou apontando para outro caminho:
-./yoshi --svg ./assets/telemetry.svg
+git commit -am "chore: update telemetry" && git push
 ```
 
 ---
 
-## 💻 Interface Web Interativa & CLI Local
+## 💻 Interface Web e CLI Local (Opcional)
 
-Além do widget para README, este projeto inclui:
+Se você quiser ver o streaming em tempo real acontecendo com os contadores subindo na tela do seu computador:
 
-1. **Interface Web em Tempo Real:**
-   ```bash
-   npm start
-   # Acesse: http://localhost:3030
-   ```
-   Acompanhe em tempo real a varredura repositório por repositório com Server-Sent Events (SSE), barras animadas e logs de eventos.
+```bash
+# Iniciar a UI Web no Mac:
+npm start
+# Acesse: http://localhost:3030
 
-2. **Comando no Terminal (CLI):**
-   ```bash
-   ./yoshi --telemetry
-   ```
-   Exibe o card completo renderizado diretamente no terminal com cores ANSI truecolor.
+# Ou consultar no terminal com cores ANSI:
+./yoshi --telemetry
+```
 
 ---
 
