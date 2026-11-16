@@ -8,6 +8,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - 'README.pt-BR.md'
+      - 'telemetry.svg'
 
 jobs:
   telemetry:
