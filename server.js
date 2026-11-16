@@ -325,6 +325,16 @@ async function streamHybridScan(res) {
   res.end();
 }
 
+function xmlEscape(str) {
+  return String(str).replace(/[&<>'"]/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&apos;',
+    '"': '&quot;'
+  }[c]));
+}
+
 function generateTelemetrySVG(data) {
   const width = 600;
   const height = 352;
@@ -337,15 +347,18 @@ function generateTelemetrySVG(data) {
   data.categories.forEach((cat, i) => {
     const y = startY + (i * rowHeight);
     const barY = y + 10;
-    const fillWidth = Math.max(6, Math.min(trackWidth, (cat.percentage / 100) * trackWidth));
+    const fillWidth = Math.max(8, Math.min(trackWidth, (cat.percentage / 100) * trackWidth));
     const thumbX = 28 + fillWidth;
     const thumbY = barY + 3.5;
 
+    const safeName = xmlEscape(cat.name);
+    const safeSubtitle = xmlEscape(cat.subtitle);
+
     rows += `
-      <!-- ${cat.name} -->
+      <!-- ${safeName} -->
       <g class="row-${cat.id}">
         <text x="28" y="${y}" font-family="'JetBrains Mono', 'Fira Code', Menlo, monospace" font-size="13.5" font-weight="700" fill="#f8fafc">
-          ${cat.name} <tspan font-weight="400" fill="#8492a6" font-size="12">${cat.subtitle}</tspan>
+          ${safeName} <tspan font-weight="400" fill="#8492a6" font-size="12">${safeSubtitle}</tspan>
         </text>
         <text x="572" y="${y}" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', Menlo, monospace" font-size="14.5" font-weight="700" fill="${cat.color}">
           ${cat.percentage.toFixed(1)}%
@@ -357,7 +370,8 @@ function generateTelemetrySVG(data) {
     `;
   });
 
-  const username = data.username ? data.username.replace(' (Local)', '').replace(' (Público)', '') : 'yoshi';
+  const username = xmlEscape(data.username ? data.username.replace(' (Local)', '').replace(' (Público)', '') : 'yoshi');
+  const activeRepo = xmlEscape(data.latestActiveRepo || 'Yoshi-404');
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -434,7 +448,7 @@ function generateTelemetrySVG(data) {
   <rect x="308" y="272" width="264" height="54" rx="10" fill="#0e1422" stroke="#1a2234" />
   <text x="322" y="291" font-family="'JetBrains Mono', 'Fira Code', Menlo, monospace" font-size="10.5" font-weight="700" letter-spacing="0.08em" fill="#64748b">LATEST ACTIVE REPO</text>
   <text x="322" y="312" font-family="'JetBrains Mono', 'Fira Code', Menlo, monospace" font-size="14" font-weight="700" fill="#38bdf8">
-    ${data.latestActiveRepo}
+    ${activeRepo}
   </text>
 </svg>`;
 }
