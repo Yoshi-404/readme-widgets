@@ -222,27 +222,38 @@ function getHybridTelemetry() {
   let totalCommits = 0;
   let langBytes = {};
   
-  localRepos.forEach(r => {
-    totalCommits += r.commits;
-    for (const [l, b] of Object.entries(r.languages)) {
-      langBytes[l] = (langBytes[l] || 0) + b;
-    }
-  });
+  if (localRepos.length > 0) {
+    localRepos.forEach(r => {
+      totalCommits += r.commits;
+      for (const [l, b] of Object.entries(r.languages)) {
+        langBytes[l] = (langBytes[l] || 0) + b;
+      }
+    });
 
-  // Include remote-only public projects (C++, C, etc.)
-  langBytes['C++'] = (langBytes['C++'] || 0) + 24302;
-  langBytes['C'] = (langBytes['C'] || 0) + 17167;
-  langBytes['Python'] = (langBytes['Python'] || 0) + 250000;
-  totalCommits += 27; // remote-only commits
+    // Include remote-only public projects (C++, C, etc.)
+    langBytes['C++'] = (langBytes['C++'] || 0) + 24302;
+    langBytes['C'] = (langBytes['C'] || 0) + 17167;
+    langBytes['Python'] = (langBytes['Python'] || 0) + 250000;
+  } else {
+    // When running in cloud CI / GitHub Actions (where local ~/GitHub is not cloned)
+    langBytes['Python'] = 13287531;
+    langBytes['JavaScript'] = 7270777;
+    langBytes['TypeScript'] = 5791538;
+    langBytes['HTML'] = 81383;
+    langBytes['CSS'] = 52331;
+    langBytes['C++'] = 24302;
+    langBytes['C'] = 17167;
+    langBytes['Shell'] = 7668;
+    langBytes['PowerShell'] = 4266;
+  }
 
-  const totalRepos = Math.max(20, localRepos.length + 7);
   const { totalBytes, categories, languages } = processCategorization(langBytes);
 
   return {
     username: 'Yoshi-404',
     name: 'Yoshinori',
-    totalRepos,
-    totalCommits: Math.max(359, totalCommits), // reflects full 359 contributions
+    totalRepos: 20,
+    totalCommits: 359, // Exact 359 from GitHub annual contributions overview
     latestActiveRepo: 'KutsuLab',
     totalBytes,
     categories,
