@@ -40,7 +40,8 @@ function generateTelemetrySVG(data) {
         </text>
         <rect x="28" y="${barY}" width="${trackWidth}" height="7" rx="3.5" fill="#111726" />
         <rect x="28" y="${barY}" width="${fillWidth}" height="7" rx="3.5" fill="url(#grad-${cat.id})" />
-        <circle cx="${thumbX}" cy="${thumbY}" r="4.5" fill="${cat.thumbColor || '#ffffff'}" filter="url(#glow-${cat.id})" />
+        <circle cx="${thumbX}" cy="${thumbY}" r="8" fill="${cat.color}" opacity="0.35" />
+        <circle cx="${thumbX}" cy="${thumbY}" r="4.5" fill="${cat.thumbColor || '#ffffff'}" />
       </g>
     `;
   });
@@ -50,18 +51,6 @@ function generateTelemetrySVG(data) {
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter id="glow-python" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#38bdf8" flood-opacity="0.9"/>
-    </filter>
-    <filter id="glow-web" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#818cf8" flood-opacity="0.9"/>
-    </filter>
-    <filter id="glow-frontend" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#fb7185" flood-opacity="0.9"/>
-    </filter>
-    <filter id="glow-systems" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#34d399" flood-opacity="0.9"/>
-    </filter>
     <linearGradient id="grad-python" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#0284c7" />
       <stop offset="100%" stop-color="#38bdf8" />
