@@ -46,49 +46,46 @@ function processCategorization(langBytes) {
   let pythonBytes = (langBytes['Python'] || 0) + (langBytes['Jupyter Notebook'] || 0);
   let webBytes = (langBytes['JavaScript'] || 0) + (langBytes['TypeScript'] || 0);
   let frontBytes = (langBytes['HTML'] || 0) + (langBytes['CSS'] || 0) + (langBytes['SCSS'] || 0);
-  let sysBytes = (langBytes['C'] || 0) + (langBytes['C++'] || 0) + (langBytes['C/C++'] || 0) + (langBytes['Shell'] || 0) + (langBytes['PowerShell'] || 0) + (langBytes['Dockerfile'] || 0);
+  let sysBytes = (langBytes['C'] || 0) + (langBytes['C++'] || 0) + (langBytes['C/C++'] || 0) + (langBytes['Shell'] || 0) + (langBytes['PowerShell'] || 0) + (langBytes['Dockerfile'] || 0) + (langBytes['Rust'] || 0) + (langBytes['Go'] || 0);
 
   const categorizedTotal = pythonBytes + webBytes + frontBytes + sysBytes;
-  const baseTotal = categorizedTotal > 0 ? categorizedTotal : totalBytes;
 
-  const categories = [
-    {
-      id: 'python',
-      name: 'Python',
-      subtitle: '(OpenGL / 3D / AI)',
-      bytes: pythonBytes,
-      percentage: Number(((pythonBytes / baseTotal) * 100).toFixed(1)),
-      color: '#38bdf8',
-      thumbColor: '#e0f2fe'
-    },
-    {
-      id: 'web',
-      name: 'JS & TypeScript',
-      subtitle: '(Next.js / Web)',
-      bytes: webBytes,
-      percentage: Number(((webBytes / baseTotal) * 100).toFixed(1)),
-      color: '#818cf8',
-      thumbColor: '#e0e7ff'
-    },
-    {
-      id: 'frontend',
-      name: 'HTML / CSS / UI',
-      subtitle: '(Frontend & Design)',
-      bytes: frontBytes,
-      percentage: Number(((frontBytes / baseTotal) * 100).toFixed(1)),
-      color: '#fb7185',
-      thumbColor: '#ffe4e6'
-    },
-    {
-      id: 'systems',
-      name: 'C / C++ & Shell',
-      subtitle: '(Systems / Embedded)',
-      bytes: sysBytes,
-      percentage: Number(((sysBytes / baseTotal) * 100).toFixed(1)),
-      color: '#34d399',
-      thumbColor: '#d1fae5'
-    }
-  ];
+  let categories;
+  // If user matches at least one of the primary stacks:
+  if (categorizedTotal / totalBytes >= 0.25) {
+    const baseTotal = categorizedTotal > 0 ? categorizedTotal : totalBytes;
+    categories = [
+      { id: 'python', name: 'Python', subtitle: '(OpenGL / 3D / AI)', bytes: pythonBytes, percentage: Number(((pythonBytes / baseTotal) * 100).toFixed(1)), color: '#38bdf8', thumbColor: '#e0f2fe' },
+      { id: 'web', name: 'JS & TypeScript', subtitle: '(Next.js / Web)', bytes: webBytes, percentage: Number(((webBytes / baseTotal) * 100).toFixed(1)), color: '#818cf8', thumbColor: '#e0e7ff' },
+      { id: 'frontend', name: 'HTML / CSS / UI', subtitle: '(Frontend & Design)', bytes: frontBytes, percentage: Number(((frontBytes / baseTotal) * 100).toFixed(1)), color: '#fb7185', thumbColor: '#ffe4e6' },
+      { id: 'systems', name: 'C / C++ & Shell', subtitle: '(Systems / Embedded)', bytes: sysBytes, percentage: Number(((sysBytes / baseTotal) * 100).toFixed(1)), color: '#34d399', thumbColor: '#d1fae5' }
+    ];
+  } else {
+    // Adapt to any developer's top languages (e.g. Rust, Go, Java, Swift, Kotlin, Dart)
+    const sorted = Object.entries(langBytes).sort((a, b) => b[1] - a[1]);
+    const palette = [
+      { color: '#38bdf8', thumbColor: '#e0f2fe' },
+      { color: '#818cf8', thumbColor: '#e0e7ff' },
+      { color: '#fb7185', thumbColor: '#ffe4e6' },
+      { color: '#34d399', thumbColor: '#d1fae5' }
+    ];
+    const top4 = sorted.slice(0, 4);
+    const topTotal = top4.reduce((acc, [, b]) => acc + b, 0) || totalBytes;
+
+    categories = top4.map(([lang, b], idx) => {
+      const p = palette[idx % palette.length];
+      const sizeStr = b > 1024 * 1024 ? `${(b / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`;
+      return {
+        id: `lang-${idx}`,
+        name: lang,
+        subtitle: `(${sizeStr})`,
+        bytes: b,
+        percentage: Number(((b / topTotal) * 100).toFixed(1)),
+        color: p.color,
+        thumbColor: p.thumbColor
+      };
+    });
+  }
 
   const languages = Object.entries(langBytes)
     .sort((a, b) => b[1] - a[1])
@@ -100,6 +97,77 @@ function processCategorization(langBytes) {
     }));
 
   return { totalBytes, categories, languages };
+}
+
+// Fetch live telemetry for any GitHub user dynamically
+async function fetchLiveUserTelemetry(username, token) {
+  const isYoshiLocal = username.toLowerCase() === 'yoshi-404' && fs.existsSync(path.join(process.env.HOME, 'GitHub', 'KutsuLab'));
+  if (isYoshiLocal) {
+    return getHybridTelemetry();
+  }
+
+  const headers = {
+    'User-Agent': 'GitHub-Telemetry-Widget/1.0',
+    Accept: 'application/vnd.github.v3+json'
+  };
+  const effectiveToken = token || process.env.GITHUB_TOKEN;
+  if (effectiveToken) {
+    headers['Authorization'] = `token ${effectiveToken}`;
+  }
+
+  const userRes = await fetch(`https://api.github.com/users/${username}`, { headers });
+  if (!userRes.ok) {
+    throw new Error(`GitHub user "${username}" not found (${userRes.status})`);
+  }
+  const userProfile = await userRes.json();
+
+  const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`, { headers });
+  const repos = reposRes.ok ? await reposRes.json() : [];
+
+  let totalRepos = userProfile.public_repos || repos.length;
+  let totalCommits = 0;
+  let langBytes = {};
+  let latestActiveRepo = repos.length > 0 ? repos[0].name : username;
+
+  const reposToScan = Array.isArray(repos) ? repos.slice(0, 30) : [];
+  for (const repo of reposToScan) {
+    try {
+      const lRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/languages`, { headers });
+      if (lRes.ok) {
+        const lData = await lRes.json();
+        for (const [lang, b] of Object.entries(lData)) {
+          langBytes[lang] = (langBytes[lang] || 0) + b;
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const cRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/commits?author=${username}&per_page=1`, { headers });
+      if (cRes.ok) {
+        const link = cRes.headers.get('link');
+        if (link) {
+          const m = link.match(/page=(\d+)>; rel="last"/);
+          if (m) totalCommits += parseInt(m[1], 10);
+        } else {
+          const cData = await cRes.json();
+          if (Array.isArray(cData)) totalCommits += cData.length;
+        }
+      }
+    } catch (e) {}
+  }
+
+  const { totalBytes, categories, languages } = processCategorization(langBytes);
+
+  return {
+    username: userProfile.login || username,
+    name: userProfile.name || userProfile.login || username,
+    totalRepos,
+    totalCommits: Math.max(totalCommits, repos.length),
+    latestActiveRepo,
+    totalBytes,
+    categories,
+    languages
+  };
 }
 
 // Scans local repos from ~/GitHub directly using git and file stats
@@ -605,4 +673,4 @@ if (require.main === module) {
   startListening(DEFAULT_PORT);
 }
 
-module.exports = { server, processCategorization, scanLocalDirectory, getHybridTelemetry, YOSHI_PUBLIC_TELEMETRY, generateTelemetrySVG };
+module.exports = { server, processCategorization, scanLocalDirectory, getHybridTelemetry, YOSHI_PUBLIC_TELEMETRY, generateTelemetrySVG, fetchLiveUserTelemetry };

@@ -30,8 +30,9 @@ jobs:
       - name: Generate Telemetry SVG
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.repository_owner }}
         run: |
-          ./yoshi --svg telemetry.svg
+          ./yoshi --svg telemetry.svg --user ${{ github.repository_owner }}
 
       - name: Commit & Push Updated Telemetry
         run: |

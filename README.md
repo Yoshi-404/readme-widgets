@@ -25,24 +25,27 @@ A dynamic SVG telemetry card for GitHub profile and repository READMEs. It visua
 
 ### 1. Direct Embed
 
-To display the badge in your GitHub profile (`username/username`) or in any repository README, reference the generated SVG directly:
+To display your own badge, replace `Yoshi-404` with your GitHub username:
 
 ```markdown
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Yoshi-404/readme-widgets/main/telemetry.svg" alt="GitHub Telemetry" width="600" />
+  <img src="https://raw.githubusercontent.com/YOUR_USERNAME/readme-widgets/main/telemetry.svg" alt="GitHub Telemetry" width="600" />
 </div>
 ```
 
 ### 2. Standalone Automation via GitHub Actions
 
-If you want to maintain the badge in your own repository without external dependencies:
+The automation is completely dynamic and multi-user ready. When you fork or copy this repository to your own account:
 
-1. Copy the workflow file [update-telemetry.yml](.github/workflows/update-telemetry.yml) into your `.github/workflows/` directory.
-2. Reference the generated local file in your `README.md`:
+1. The workflow automatically resolves your username via `${{ github.repository_owner }}`.
+2. It queries your repositories, counts your commits, computes your language volume, and renders your username into the terminal prompt.
+3. No code changes or hardcoded configurations are needed.
+
+Reference the local file in your `README.md`:
 
 ```markdown
 <div align="center">
-  <img src="./telemetry.svg" alt="GitHub Telemetry" width="600" />
+  <img src="telemetry.svg" alt="GitHub Telemetry" width="600" />
 </div>
 ```
 

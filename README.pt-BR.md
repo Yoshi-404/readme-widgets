@@ -25,24 +25,27 @@ Cartão de telemetria vetorial dinâmico em SVG para perfis e repositórios do G
 
 ### 1. Inclusão Direta
 
-Para exibir o cartão em seu perfil do GitHub (`usuario/usuario`) ou no README de qualquer repositório, faça referência direta ao SVG hospedado:
+Para exibir o seu próprio cartão, substitua `Yoshi-404` pelo seu nome de usuário do GitHub:
 
 ```markdown
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Yoshi-404/readme-widgets/main/telemetry.svg" alt="Telemetria do GitHub" width="600" />
+  <img src="https://raw.githubusercontent.com/SEU_USUARIO/readme-widgets/main/telemetry.svg" alt="Telemetria do GitHub" width="600" />
 </div>
 ```
 
-### 2. Automação Própria via GitHub Actions
+### 2. Automação Dinâmica via GitHub Actions
 
-Caso deseje manter o processo de atualização de forma isolada em seu próprio repositório:
+O sistema é 100% dinâmico e multiusuário. Quando outra pessoa fizer um fork ou copiar este repositório para a própria conta:
 
-1. Copie o arquivo de workflow [update-telemetry.yml](.github/workflows/update-telemetry.yml) para o diretório `.github/workflows/`.
-2. Insira a referência ao arquivo local no seu `README.md`:
+1. O workflow identifica o nome do proprietário automaticamente através da variável `${{ github.repository_owner }}`.
+2. Faz a varredura dos repositórios daquela pessoa, soma os commits, calcula o volume das linguagens e insere o nome de usuário dela no prompt do terminal (`$ usuario --telemetry`).
+3. Não requer alteração manual de código ou configurações fixas.
+
+Basta referenciar o arquivo local no seu `README.md`:
 
 ```markdown
 <div align="center">
-  <img src="./telemetry.svg" alt="Telemetria do GitHub" width="600" />
+  <img src="telemetry.svg" alt="Telemetria do GitHub" width="600" />
 </div>
 ```
 
