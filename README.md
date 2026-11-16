@@ -1,91 +1,120 @@
-# ⚡ Yoshi GitHub Telemetry Widget
+# GitHub Telemetry Widget
+
+[Português](README.pt-BR.md) | English
 
 <div align="center">
-
-  <!-- LIVE WIDGET PREVIEW -->
-  <a href="https://github.com/Yoshi-404">
-    <img src="./telemetry.svg" alt="Yoshi Live GitHub Telemetry" width="600" />
-  </a>
-
-  <p>
-    <b>Widget de telemetria em tempo real para o README do GitHub</b><br>
-    Alimentado 100% por <b>GitHub Actions</b> (sem necessidade de servidores externos como Vercel ou Heroku).
-  </p>
-
+  <img src="./telemetry.svg" alt="GitHub Telemetry Widget" width="600" />
 </div>
 
----
+<br>
 
-## 🎯 Como Funciona com GitHub Actions (100% Grátis)
-
-Tudo roda dentro da infraestrutura do próprio GitHub:
-- O workflow agendado ([.github/workflows/update-telemetry.yml](.github/workflows/update-telemetry.yml)) roda a cada 6 horas (ou sempre que você fizer push).
-- Ele recalcula repositórios, commits e distribuição de linguagens.
-- Gera o arquivo vetorial `telemetry.svg` (apenas 6 KB) e atualiza o repositório sozinho.
-- Suas cotas na Vercel continuam **100% livres e reservadas para o KutsuLab**!
+A dynamic SVG telemetry card for GitHub profile and repository READMEs. It visualizes public and private activity metrics, including repository counts, commit history, and programming language distributions, using pure vector graphics and native CSS animations.
 
 ---
 
-## 📌 Como Usar no seu Perfil (`Yoshi-404`) ou em Qualquer Repositório
+## Features
 
-### Método 1: Referência Direta (Recomendado)
-Se você quer exibir este widget no seu perfil ou em outro projeto, basta adicionar esta tag no seu `README.md`:
+- **Automated Updates**: Scheduled via GitHub Actions. No third-party servers, databases, or external hosting services required.
+- **Pure SVG Rendering**: Emits an optimized ~6 KB vector graphic with embedded CSS animations (pulsing status indicator and terminal cursor).
+- **Language Stack Aggregation**: Computes byte shares across repositories and groups them into domain categories.
+- **Local Git & API Support**: Includes a local inspection server and CLI tool for immediate terminal execution.
+
+---
+
+## Usage in GitHub README
+
+### 1. Direct Embed
+
+To display the badge in your GitHub profile (`username/username`) or in any repository README, reference the generated SVG directly:
 
 ```markdown
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Yoshi-404/readme-widgets/main/telemetry.svg" alt="Live GitHub Telemetry" width="600" />
+  <img src="https://raw.githubusercontent.com/Yoshi-404/readme-widgets/main/telemetry.svg" alt="GitHub Telemetry" width="600" />
 </div>
 ```
 
----
+### 2. Standalone Automation via GitHub Actions
 
-### Método 2: Rodar o Workflow no Próprio Repositório de Destino
-Se você ou outra pessoa quiser que o script gere o arquivo localmente dentro do próprio repositório:
-1. Copie o arquivo [.github/workflows/update-telemetry.yml](.github/workflows/update-telemetry.yml).
-2. No `README.md`, referencie o arquivo local:
+If you want to maintain the badge in your own repository without external dependencies:
+
+1. Copy the workflow file [update-telemetry.yml](.github/workflows/update-telemetry.yml) into your `.github/workflows/` directory.
+2. Reference the generated local file in your `README.md`:
+
 ```markdown
 <div align="center">
-  <img src="./telemetry.svg" alt="Live GitHub Telemetry" width="600" />
+  <img src="./telemetry.svg" alt="GitHub Telemetry" width="600" />
 </div>
 ```
 
----
-
-## ⚙️ Disparo Manual e Atualização na Hora
-
-Além do cron automático a cada 6 horas:
-- Você pode ir na aba **Actions** do repositório no GitHub, selecionar **Update README Telemetry** e clicar em **Run workflow**.
-- Ou no seu Mac, gerar e commitar instantaneamente:
-```bash
-./yoshi --svg
-git commit -am "chore: update telemetry" && git push
-```
+The workflow runs on a 6-hour cron schedule and on push events to `main`. It regenerates `telemetry.svg` and commits changes back to the repository automatically.
 
 ---
 
-## 💻 Interface Web e CLI Local (Opcional)
+## Metric Mapping
 
-Se você quiser ver o streaming em tempo real acontecendo com os contadores subindo na tela do seu computador:
+Languages are computed from source code byte volume and categorized as follows:
+
+| Category | Primary Languages | Focus |
+| :--- | :--- | :--- |
+| **Python** | Python, Jupyter Notebook | Graphics, simulation, algorithms |
+| **JS & TypeScript** | JavaScript, TypeScript | Web applications, full-stack |
+| **HTML / CSS / UI** | HTML, CSS, SCSS, Sass, Vue | Interface markup, styles, design |
+| **C / C++ & Shell** | C, C++, Shell scripts, PowerShell, Dockerfile | Systems, low-level tooling |
+
+---
+
+## Local Development & CLI
+
+### Terminal CLI
+
+Run the telemetry directly in your terminal with ANSI color rendering:
 
 ```bash
-# Iniciar a UI Web no Mac:
-npm start
-# Acesse: http://localhost:3030
-
-# Ou consultar no terminal com cores ANSI:
+# Execute default profile telemetry
 ./yoshi --telemetry
+
+# Inspect local Git repositories on the machine
+./yoshi --telemetry --local
+
+# Restrict to public unauthenticated GitHub API data
+./yoshi --telemetry --public
+
+# Export telemetry directly to an SVG file
+./yoshi --svg ./telemetry.svg
+```
+
+### Web Interface
+
+A real-time web dashboard is provided for live scanning using Server-Sent Events (SSE):
+
+```bash
+npm start
+```
+
+Access `http://localhost:3030` to view real-time repository parsing and percentage calculations.
+
+---
+
+## Repository Structure
+
+```
+.
+├── .github/workflows/
+│   └── update-telemetry.yml   # Scheduled automation workflow
+├── api/
+│   └── index.js               # Serverless handler definition
+├── public/
+│   ├── app.js                 # Frontend streaming client
+│   ├── index.html             # Dashboard markup
+│   └── style.css              # Terminal layout styles
+├── cli.js                     # Terminal execution script
+├── server.js                  # Local HTTP & SSE stream server
+├── telemetry.svg              # Rendered SVG widget
+└── yoshi                      # Executable CLI wrapper
 ```
 
 ---
 
-## 📊 Como as Métricas São Calculadas
+## License
 
-| Categoria | Descrição / Mapeamento |
-| :--- | :--- |
-| **Python** | Python, Jupyter Notebook *(OpenGL / 3D / AI)* |
-| **JS & TypeScript** | JavaScript, TypeScript *(Next.js / Web)* |
-| **HTML / CSS / UI** | HTML, CSS, SCSS, Sass, Vue *(Frontend & Design)* |
-| **C / C++ & Shell** | C, C++, Shell, PowerShell, Dockerfile *(Systems / Embedded)* |
-
-- **Repositórios & Commits:** Contabilizados com precisão a partir de cada repositório.
-- **Linguagens:** Proporção calculada em bytes reais de código fonte.
+MIT
