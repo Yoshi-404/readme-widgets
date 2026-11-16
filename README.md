@@ -3,7 +3,7 @@
 [Português](README.pt-BR.md) | English
 
 <div align="center">
-  <img src="./telemetry.svg" alt="GitHub Telemetry Widget" width="600" />
+  <img src="telemetry.svg" alt="GitHub Telemetry Widget" width="600" />
 </div>
 
 <br>
