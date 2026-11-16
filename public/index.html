@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Telemetry — Live Stats & Languages</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    
+    <!-- Top Source Selector & Controls -->
+    <header class="control-bar" role="region" aria-label="Controls">
+      <div class="source-select-group">
+        <label for="sourceSelect" class="source-label">Fonte:</label>
+        <select id="sourceSelect" class="source-dropdown">
+          <option value="hybrid" selected>⚡ Completo / Real (20 Repos • 359 Contribs)</option>
+          <option value="local">💻 Mac Local ~/GitHub (13 Repos • 332 Commits)</option>
+          <option value="public">🌐 Público GitHub (17 Repos • 102 Commits)</option>
+        </select>
+      </div>
+
+      <div class="btn-group">
+        <button id="whyBtn" class="action-btn" title="Entenda por que os dados variam">
+          <span>ℹ️ Entenda os Dados</span>
+        </button>
+
+        <button id="scanBtn" class="action-btn primary" title="Rodar telemetria em tempo real">
+          <span id="scanIcon" aria-hidden="true">⚡</span>
+          <span id="scanLabel">Scan</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Modal Explicativo: Por que os dados diferem -->
+    <div id="explanationModal" class="explanation-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>🔍 Por que os dados do GitHub mudam?</h3>
+          <button id="closeModalBtn" class="action-btn" style="padding: 2px 8px;">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>1. Repositórios Privados (Ex: <code>KutsuLab</code>):</strong></p>
+          <p>A API pública sem login só vê <strong>17 repositórios públicos</strong>. Seu projeto <code>KutsuLab</code> é privado, elevando o total da sua conta logada para <strong>20 repositórios</strong>.</p>
+          
+          <p><strong>2. Commits Privados e Organizações:</strong></p>
+          <p>O <code>KutsuLab</code> sozinho tem <strong>91 commits em novembro</strong> (e mais de 247 commits no histórico). Além disso, você comita na organização <code>@Lumina-Studios-web</code> (projeto <code>Lumina_Study</code>). O GitHub contabiliza <strong>359 contribuições no último ano</strong>.</p>
+
+          <p><strong>3. Porcentagem Real de TypeScript:</strong></p>
+          <p>Como <code>KutsuLab</code> é um projeto Next.js / TypeScript com milhares de linhas, o seu volume real de JS/TypeScript é muito mais alto do que a API pública mostrava.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TELEMETRY CARD - EXACT REPLICA OF THE SCREENSHOT -->
+    <main class="telemetry-card" id="telemetryCard" aria-label="GitHub Live Telemetry">
+      <div class="scan-progress-strip" id="scanStrip"></div>
+
+      <!-- Card Top Header -->
+      <div class="card-header">
+        <div class="terminal-prompt">
+          <span class="prompt-symbol">$</span>
+          <span id="promptUserText">yoshi</span>
+          <span class="prompt-arg">--telemetry</span>
+        </div>
+
+        <div class="api-badge" aria-live="polite">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="apiStatusText">LIVE GITHUB API</span>
+        </div>
+      </div>
+
+      <!-- Metrics / Progress Bars -->
+      <div class="metrics-list" id="metricsList" role="region" aria-label="Language Breakdown">
+        
+        <!-- Python -->
+        <div class="metric-item cat-python" id="metric-python">
+          <div class="metric-header">
+            <div class="metric-label-group">
+              <span class="metric-title">Python</span>
+              <span class="metric-subtitle">(OpenGL / 3D / AI)</span>
+            </div>
+            <span class="metric-value" id="val-python">0.0%</span>
+          </div>
+          <div class="progress-container" role="progressbar" id="pb-python" aria-label="Python percentage" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-track">
+              <div class="progress-fill" id="fill-python" style="width: 0%;">
+                <div class="progress-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JS & TypeScript -->
+        <div class="metric-item cat-web" id="metric-web">
+          <div class="metric-header">
+            <div class="metric-label-group">
+              <span class="metric-title">JS & TypeScript</span>
+              <span class="metric-subtitle">(Next.js / Web)</span>
+            </div>
+            <span class="metric-value" id="val-web">0.0%</span>
+          </div>
+          <div class="progress-container" role="progressbar" id="pb-web" aria-label="JavaScript & TypeScript percentage" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-track">
+              <div class="progress-fill" id="fill-web" style="width: 0%;">
+                <div class="progress-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTML / CSS / UI -->
+        <div class="metric-item cat-frontend" id="metric-frontend">
+          <div class="metric-header">
+            <div class="metric-label-group">
+              <span class="metric-title">HTML / CSS / UI</span>
+              <span class="metric-subtitle">(Frontend & Design)</span>
+            </div>
+            <span class="metric-value" id="val-frontend">0.0%</span>
+          </div>
+          <div class="progress-container" role="progressbar" id="pb-frontend" aria-label="HTML, CSS and UI percentage" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-track">
+              <div class="progress-fill" id="fill-frontend" style="width: 0%;">
+                <div class="progress-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C / C++ & Shell -->
+        <div class="metric-item cat-systems" id="metric-systems">
+          <div class="metric-header">
+            <div class="metric-label-group">
+              <span class="metric-title">C / C++ & Shell</span>
+              <span class="metric-subtitle">(Systems / Embedded)</span>
+            </div>
+            <span class="metric-value" id="val-systems">0.0%</span>
+          </div>
+          <div class="progress-container" role="progressbar" id="pb-systems" aria-label="C, C++ and Shell percentage" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-track">
+              <div class="progress-fill" id="fill-systems" style="width: 0%;">
+                <div class="progress-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Activity and Active Repo Cards -->
+      <footer class="stats-grid">
+        <div class="stat-box" id="boxActivity">
+          <span class="stat-title">ACTIVITY & REPOSITORIES</span>
+          <div class="stat-content">
+            <span id="repoCountText">0 Repos</span>
+            <span class="stat-dot">•</span>
+            <span id="commitCountText">0 Commits</span>
+          </div>
+        </div>
+
+        <div class="stat-box" id="boxActiveRepo">
+          <span class="stat-title">LATEST ACTIVE REPO</span>
+          <div class="stat-content stat-highlight" id="activeRepoText">
+            Iniciando...
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Collapsible Live Stream Terminal Log -->
+    <section class="terminal-drawer" id="terminalLog" aria-label="Live Telemetry Log" role="log">
+      <div class="terminal-line"><span class="t-cyan">$</span> Sistema pronto. Escolha a fonte e clique em <span class="t-cyan">Scan</span>.</div>
+    </section>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

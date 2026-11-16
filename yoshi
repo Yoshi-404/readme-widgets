@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+/**
+ * Yoshi CLI tool executable wrapper
+ * Usage:
+ *   ./yoshi --telemetry
+ */
+
+require('./cli.js');

@@ -1,0 +1,24 @@
+{
+  "name": "yoshi-github-telemetry",
+  "version": "1.0.0",
+  "description": "Real-time GitHub telemetry UI and CLI: repositories, commits, and language percentage breakdown",
+  "main": "server.js",
+  "bin": {
+    "yoshi": "./bin/yoshi.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "telemetry": "node cli.js --telemetry"
+  },
+  "keywords": [
+    "github",
+    "telemetry",
+    "stats",
+    "languages",
+    "commits",
+    "realtime"
+  ],
+  "author": "Yoshinori (Yoshi-404)",
+  "license": "MIT"
+}
